@@ -1071,9 +1071,15 @@ MapBlockMesh::MapBlockMesh(MeshMakeData *data, v3s16 camera_offset):
 		NOTE: This is the slowest part of this method.
 	*/
 	{
+		static thread_local u64 total_time = 0;
+		static thread_local u64 times_called = 0;
+		TimeTaker timeTaker("SOLID_NODE", nullptr, PRECISION_MICRO);
 		// 4-23ms for MAP_BLOCKSIZE=16  (NOTE: probably outdated)
 		//TimeTaker timer2("updateAllFastFaceRows()");
 		updateAllFastFaceRows(data, fastfaces_new);
+		total_time += timeTaker.stop(true);
+		++times_called;
+		std::cout << "SOLID_NODE " << times_called << " " << total_time << "\n";
 	}
 	// End of slow part
 

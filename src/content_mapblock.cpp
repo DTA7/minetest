@@ -29,6 +29,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "client/renderingengine.h"
 #include "client.h"
 #include "noise.h"
+#include "util/timetaker.h"
 
 // Distance of light extrapolation (for oversized nodes)
 // After this distance, it gives up and considers light level constant
@@ -1352,6 +1353,9 @@ void MapblockMeshGenerator::drawNode()
 */
 void MapblockMeshGenerator::generate()
 {
+	static thread_local u64 total_time = 0;
+	static thread_local u64 times_called = 0;
+	TimeTaker timeTaker("NON-SOLID", nullptr, PRECISION_MICRO);
 	for (p.Z = 0; p.Z < MAP_BLOCKSIZE; p.Z++)
 	for (p.Y = 0; p.Y < MAP_BLOCKSIZE; p.Y++)
 	for (p.X = 0; p.X < MAP_BLOCKSIZE; p.X++) {
@@ -1359,4 +1363,7 @@ void MapblockMeshGenerator::generate()
 		f = &nodedef->get(n);
 		drawNode();
 	}
+	total_time += timeTaker.stop(true);
+	++times_called;
+	std::cout << "NON-SOLID " << times_called << " " << total_time << "\n";
 }
